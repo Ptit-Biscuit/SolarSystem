@@ -2,16 +2,14 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
-class Enemy(pos: Vector2) : Ship(pos, 1) {
-    override val scale = 30.0
-    override val bullets = mutableListOf<Bullet>()
+data class EnemyDefinition(val movement: Movement, val fire: Fire)
+
+class Enemy(pos: Vector2, val def: EnemyDefinition) : Ship(pos, 1) {
     override var bulletSpeed = -3.0
-    override var firingRate = .5
-    override var lastFire = -1.0
+    override var firingRate = .8
 
     fun update(drawer: Drawer, seconds: Double) {
-        this.draw(drawer)
-
+        this.pos += this.def.movement.pattern(seconds)
         this.shoot(seconds)
         this.bullets.forEach { it.update(drawer, this.bulletSpeed) }
     }
@@ -29,14 +27,12 @@ class Enemy(pos: Vector2) : Ship(pos, 1) {
             )
         )
 
-        this.pos += Vector2.UNIT_Y
-
         drawer.stroke = ColorRGBa.WHITE
     }
 
     override fun shoot(seconds: Double) {
         if (seconds - this.lastFire > this.firingRate || lastFire == -1.0) {
-            this.bullets.add(Bullet(false, this.pos + Vector2.UNIT_Y * this.scale))
+            this.bullets.addAll(this.def.fire.pattern(this, seconds))
             this.lastFire = seconds
         }
     }

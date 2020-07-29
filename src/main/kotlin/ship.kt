@@ -2,7 +2,7 @@ import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
 abstract class Ship(var pos: Vector2, var health: Int) {
-    protected open val scale = 1.0
+    open val scale = 20.0
     protected open val bullets = mutableListOf<Bullet>()
     protected open var bulletSpeed = 1.0
     protected open var firingRate = 1.0

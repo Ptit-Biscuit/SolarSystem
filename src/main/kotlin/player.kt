@@ -3,11 +3,8 @@ import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
 class Player(pos: Vector2) : Ship(pos, 3) {
-    override val scale = 25.0
-    override val bullets = mutableListOf<Bullet>()
     override var bulletSpeed = 4.0
     override var firingRate = .2
-    override var lastFire = -1.0
 
     fun update(drawer: Drawer, position: Vector2) {
         if (position.x > this.scale || position.x < drawer.bounds.width - this.scale
