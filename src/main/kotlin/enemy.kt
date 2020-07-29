@@ -2,19 +2,23 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 
-data class EnemyDefinition(val movement: Movement, val fire: Fire)
+data class EnemyDefinition(
+    var triggerPos: Double,
+    var health: Int,
+    val xOffset: Double,
+    val move: Movement,
+    val fire: Fire
+)
 
-class Enemy(pos: Vector2, val def: EnemyDefinition) : Ship(pos, 1) {
-    override var bulletSpeed = -3.0
-    override var firingRate = .8
+class Enemy(var pos: Vector2, val def: EnemyDefinition) {
+    val scale = 20.0
 
-    fun update(drawer: Drawer, seconds: Double) {
-        this.pos += this.def.movement.pattern(seconds)
-        this.shoot(seconds)
-        this.bullets.forEach { it.update(drawer, this.bulletSpeed) }
+    fun update(worldSpeed: Double, deltaTime: Double, bullets: MutableList<Bullet>) {
+        this.def.move.pattern(this, worldSpeed, deltaTime)
+        this.def.fire.pattern(this, worldSpeed, deltaTime, bullets)
     }
 
-    override fun draw(drawer: Drawer) {
+    fun draw(drawer: Drawer) {
         drawer.stroke = ColorRGBa.RED
         drawer.fill = ColorRGBa.TRANSPARENT
 
@@ -28,26 +32,5 @@ class Enemy(pos: Vector2, val def: EnemyDefinition) : Ship(pos, 1) {
         )
 
         drawer.stroke = ColorRGBa.WHITE
-    }
-
-    override fun shoot(seconds: Double) {
-        if (seconds - this.lastFire > this.firingRate || lastFire == -1.0) {
-            this.bullets.addAll(this.def.fire.pattern(this, seconds))
-            this.lastFire = seconds
-        }
-    }
-
-    override fun hit(bullet: Bullet) {
-        if (bullet.fromPlayer) {
-            this.health--
-        }
-
-        if (this.health <= 0) {
-            this.die()
-        }
-    }
-
-    override fun die() {
-        println("enemy died")
     }
 }
