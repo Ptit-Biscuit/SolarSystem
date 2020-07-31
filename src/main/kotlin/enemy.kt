@@ -12,12 +12,29 @@ data class EnemyDefinition(
 
 class Enemy(var pos: Vector2, val def: EnemyDefinition) {
     val scale = 20.0
+    private val bullets = mutableListOf<Bullet>()
     val dataMove = MutableList(4) { .0 }
     val dataFire = MutableList(4) { .0 }
 
-    fun update(worldSpeed: Double, deltaTime: Double, bullets: MutableList<Bullet>) {
+    fun update(drawer: Drawer, player: Player, worldSpeed: Double, deltaTime: Double) {
         this.def.move.pattern(this, worldSpeed, deltaTime)
-        this.def.fire.pattern(this, worldSpeed, deltaTime, bullets)
+        this.def.fire.pattern(this, worldSpeed, deltaTime, this.bullets)
+
+        if (mag2(this.pos - player.pos) < player.scale * player.scale) {
+            this.def.health--
+            player.health--
+        }
+
+        this.bullets.forEach {
+            it.update(drawer, worldSpeed, deltaTime)
+
+            if (mag2(it.pos - player.pos) < player.scale * player.scale) {
+                it.exists = false
+                player.health--
+            }
+        }
+
+        this.bullets.removeIf { !(drawer.bounds.contains(it.pos) && it.exists) }
     }
 
     fun draw(drawer: Drawer) {
