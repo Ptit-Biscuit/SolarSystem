@@ -8,8 +8,8 @@ class Player(var pos: Vector2, var health: Int = 3) {
     private var lastFire = -1.0
 
     fun update(drawer: Drawer, position: Vector2) {
-        if (position.x > this.scale * 1.5 || position.x < drawer.bounds.width - this.scale * 1.5
-            || position.y > this.scale * 1.5 || position.y < drawer.bounds.height - this.scale * 1.5
+        if (position.x > this.scale * this.scale || position.x < drawer.bounds.width - this.scale * this.scale
+            || position.y > this.scale * this.scale || position.y < drawer.bounds.height - this.scale * this.scale
         ) {
             this.pos = position
         }
@@ -33,7 +33,7 @@ class Player(var pos: Vector2, var health: Int = 3) {
 
     fun shoot(seconds: Double, bullets: MutableList<Bullet>) {
         if (seconds - this.lastFire > this.firingRate || lastFire == -1.0) {
-            bullets.add(Bullet(true, this.pos - Vector2.UNIT_Y * this.scale))
+            bullets.add(Bullet(this.pos - Vector2.UNIT_Y * this.scale, -Vector2.UNIT_Y * 200.0))
             this.lastFire = seconds
         }
     }

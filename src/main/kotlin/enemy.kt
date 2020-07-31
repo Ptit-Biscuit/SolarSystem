@@ -12,6 +12,8 @@ data class EnemyDefinition(
 
 class Enemy(var pos: Vector2, val def: EnemyDefinition) {
     val scale = 20.0
+    val dataMove = MutableList(4) { .0 }
+    val dataFire = MutableList(4) { .0 }
 
     fun update(worldSpeed: Double, deltaTime: Double, bullets: MutableList<Bullet>) {
         this.def.move.pattern(this, worldSpeed, deltaTime)
