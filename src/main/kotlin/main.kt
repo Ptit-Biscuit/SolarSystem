@@ -8,6 +8,8 @@ import org.openrndr.math.Vector2
 
 fun mag2(v: Vector2) = v.x * v.x + v.y * v.y
 
+const val showStars = false
+
 fun main() = application {
     configure {
         width = 900
@@ -24,8 +26,9 @@ fun main() = application {
         val player = Player(Vector2(width / 2.0, height - 50.0))
 
         val enemySpawner = mutableListOf<EnemyDefinition>()
+        val enemiesBullets = mutableListOf<Bullet>()
 
-        (0..10000 step 50).forEach {
+        (0..50 step 50).forEach {
             enemySpawner.add(
                 EnemyDefinition(
                     it.toDouble(),
@@ -64,14 +67,16 @@ fun main() = application {
 
             worldPos += worldSpeed * deltaTime
 
-            stars.forEachIndexed { i, it ->
-                drawer.fill = if (i < 300) ColorRGBa.GRAY else ColorRGBa.WHITE
-                drawer.circle(it, 2.0)
+            if (showStars) {
+                stars.forEachIndexed { i, it ->
+                    drawer.fill = if (i < 300) ColorRGBa.GRAY else ColorRGBa.WHITE
+                    drawer.circle(it, 2.0)
 
-                stars[i] = it + Vector2(.0, worldSpeed * deltaTime * (if (i < 300) .6 else .8))
+                    stars[i] = it + Vector2(.0, worldSpeed * deltaTime * (if (i < 300) .6 else .8))
 
-                if (it.y > height) {
-                    stars[i] = Vector2(random(.0, width.toDouble()), .0)
+                    if (it.y > height) {
+                        stars[i] = Vector2(random(.0, width.toDouble()), .0)
+                    }
                 }
             }
 
@@ -84,13 +89,23 @@ fun main() = application {
 
             enemies.forEach {
                 it.draw(drawer)
-                it.update(drawer, player, worldSpeed, deltaTime)
+                it.update(player, enemiesBullets, worldSpeed, deltaTime)
             }
 
             player.draw(drawer)
             player.update(drawer, mouse.position, enemies, worldSpeed, deltaTime)
 
+            enemiesBullets.forEach {
+                it.update(drawer, worldSpeed, deltaTime)
+
+                if (mag2(it.pos - player.pos) < player.scale * player.scale) {
+                    it.exists = false
+                    player.health--
+                }
+            }
+
             enemies.removeIf { it.pos.y >= height || it.def.health <= 0 }
+            enemiesBullets.removeIf { !(drawer.bounds.contains(it.pos) && it.exists) }
         }
     }
 }
